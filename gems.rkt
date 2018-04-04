@@ -17,10 +17,24 @@
 (define score 0)
 
 ; Put the gems down around the board
+
+(define gem-width 30)
+(define gem-height 30)
+
 ; TODO: Positions should be semi-random
 (define gem-positions (list '(20 20) '(40 40) '(60 60) '(80 80) '(100 100)))
 
-(define do-update (λ () (send frame refresh)))
+; (define gem x intervals
+; (define gem y intervals
+; (map (λ (tuple) (+ (car tuple) 30)) gem-positions)
+
+(define do-update (λ ()
+                    ;; only do expensive collision detection logic if on the bound
+                    ;;(when (zero? (modulo topOffset 10)) ;; FIXME
+                    ;;           (set! score (add1 score)))
+                    (for ([i (in-list gem-positions)])
+                      (when (and (> topOffset (car i)) (< topOffset (+ (car i) gem-height))) (set! score (add1 score))))
+                    (send frame refresh)))
 
 ; The custom canvas class
 (define my-canvas%
@@ -55,7 +69,7 @@
 
 (define onpaint (λ (canvas dc)
                   (send dc draw-bitmap playerSprite leftOffset topOffset)
-                  (map (lambda (tuple) (send dc draw-bitmap gemSprite (car tuple) (car (cdr tuple)))) gem-positions) 
+                  (map (λ (tuple) (send dc draw-bitmap gemSprite (car tuple) (car (cdr tuple)))) gem-positions) 
                   (send dc draw-text (format "Score: ~a" score) 0 0)
 ))
 (new my-canvas% (parent frame) (paint-callback onpaint))

@@ -28,12 +28,16 @@
 ; (define gem y intervals
 ; (map (λ (tuple) (+ (car tuple) 30)) gem-positions)
 
+(define collision? (λ (gemp playerp)
+                     (and (> (car playerp) (car gemp)) (> (car (cdr playerp)) (car (cdr gemp)))
+                          (< (car playerp) (+ (car gemp) 30)) (< (car (cdr playerp)) (+ (car (cdr gemp)) 30)))))
+
 (define do-update (λ ()
                     ;; only do expensive collision detection logic if on the bound
                     ;;(when (zero? (modulo topOffset 10)) ;; FIXME
                     ;;           (set! score (add1 score)))
-                    (for ([i (in-list gem-positions)])
-                      (when (and (> topOffset (car i)) (< topOffset (+ (car i) gem-height))) (set! score (add1 score))))
+                    (when (> (length (filter (λ (gemp) (collision? (list leftOffset topOffset) gemp)) gem-positions)) 0)
+                      (set! score (add1 score)))
                     (send frame refresh)))
 
 ; The custom canvas class

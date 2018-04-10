@@ -24,19 +24,16 @@
 ; TODO: Positions should be semi-random
 (define gem-positions (list '(20 20) '(40 40) '(60 60) '(80 80) '(100 100)))
 
-; (define gem x intervals
-; (define gem y intervals
-; (map (λ (tuple) (+ (car tuple) 30)) gem-positions)
-
 (define collision? (λ (gemp playerp)
                      (and (> (car playerp) (car gemp)) (> (car (cdr playerp)) (car (cdr gemp)))
                           (< (car playerp) (+ (car gemp) 30)) (< (car (cdr playerp)) (+ (car (cdr gemp)) 30)))))
 
 (define do-update (λ ()
-                    ;; only do expensive collision detection logic if on the bound
-                    ;;(when (zero? (modulo topOffset 10)) ;; FIXME
-                    ;;           (set! score (add1 score)))
-                    (when (> (length (filter (λ (gemp) (collision? (list leftOffset topOffset) gemp)) gem-positions)) 0)
+                    ;; TODO: only do expensive collision detection logic if on the bound
+                    (define gem-count (length gem-positions))
+                    (define remaining-gems (filter (λ (gemp) (not (collision? (list (- leftOffset 15) (- topOffset 15)) gemp))) gem-positions))
+                    (when (< (length remaining-gems) gem-count)
+                      (set! gem-positions remaining-gems)
                       (set! score (add1 score)))
                     (send frame refresh)))
 

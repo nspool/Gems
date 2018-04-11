@@ -11,10 +11,12 @@
 
 (define playerSprite (read-bitmap "player.png"))
 (define gemSprite (read-bitmap "gem.png"))
+(define enemySprite (read-bitmap "enemy.png"))
 (define leftOffset 0)
 (define topOffset 0)
 
 (define score 0)
+(define lives 9)
 
 ; Put the gems down around the board
 
@@ -23,6 +25,7 @@
 
 ; TODO: Positions should be semi-random
 (define gem-positions (list '(20 20) '(40 40) '(60 60) '(80 80) '(100 100)))
+(define enemy-positions (list '(200 200)))
 
 (define collision? (λ (gemp playerp)
                      (and (> (car playerp) (car gemp)) (> (car (cdr playerp)) (car (cdr gemp)))
@@ -35,6 +38,14 @@
                     (when (< (length remaining-gems) gem-count)
                       (set! gem-positions remaining-gems)
                       (set! score (add1 score)))
+
+                    ;; TODO: collision detection with enemies
+                    (define remaining-enemies (filter (λ (enp) (not (collision? (list (- leftOffset 15) (- topOffset 15)) enp))) enemy-positions))
+                    (define enemy-count (length enemy-positions))
+                    (when (< (length remaining-enemies) enemy-count)
+                      (set! enemy-positions remaining-enemies)
+                      (set! lives (sub1 lives)))
+                    
                     (send frame refresh)))
 
 ; The custom canvas class
@@ -70,9 +81,12 @@
 
 (define onpaint (λ (canvas dc)
                   (send dc draw-bitmap playerSprite leftOffset topOffset)
-                  (map (λ (tuple) (send dc draw-bitmap gemSprite (car tuple) (car (cdr tuple)))) gem-positions) 
+                  (map (λ (tuple) (send dc draw-bitmap gemSprite (car tuple) (car (cdr tuple)))) gem-positions)
+                  (map (λ (tuple) (send dc draw-bitmap enemySprite (car tuple) (car (cdr tuple)))) enemy-positions)
                   (send dc draw-text (format "Score: ~a" score) 0 0)
+                  (send dc draw-text (format "Lives: ~a" lives) 100 0)
 ))
+
 (new my-canvas% (parent frame) (paint-callback onpaint))
 
 (send frame set-cursor (make-object cursor% 'blank))

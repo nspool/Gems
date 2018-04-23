@@ -7,6 +7,14 @@
 (define window-width 640)
 
 (define frame (new frame% (label "Racket Gems") (width window-width) (height 480)))
+
+(define event-timer
+  (new timer% [notify-callback
+               (λ ()
+                 (set! score (add1 score))
+                 (send frame refresh)
+                 )] [interval 100]))
+                                            
 ; (define frameMsg (new message% (parent frame) (label "No events so far..")))
 ; (define onclick (λ (button event) (send frameMsg set-label "New label!")))
 ; (define frameBtn (new button% (parent frame) (label "Click me!") (callback onclick)))
@@ -27,7 +35,7 @@
 
 ; TODO: Positions should be semi-random
 (define gem-positions (list '(20 20) '(40 40) '(60 60) '(80 80) '(100 100)))
-(define enemy-positions (list '(200 200)))
+(define enemy-positions (list '(200 200) '(250 250)))
 
 (define collision? (λ (gemp playerp)
                      (and (> (car playerp) (car gemp)) (> (car (cdr playerp)) (car (cdr gemp)))
@@ -47,7 +55,6 @@
                     (when (< (length remaining-enemies) enemy-count)
                       (set! enemy-positions remaining-enemies)
                       (set! lives (sub1 lives)))
-                    
                     (send frame refresh)))
 
 ; The custom canvas class

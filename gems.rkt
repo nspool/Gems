@@ -4,7 +4,9 @@
 
 ; Display the main window with standard GUI elements for management
 
-(define frame (new frame% (label "Racket Gems") (width 640) (height 480)))
+(define window-width 640)
+
+(define frame (new frame% (label "Racket Gems") (width window-width) (height 480)))
 ; (define frameMsg (new message% (parent frame) (label "No events so far..")))
 ; (define onclick (λ (button event) (send frameMsg set-label "New label!")))
 ; (define frameBtn (new button% (parent frame) (label "Click me!") (callback onclick)))
@@ -83,6 +85,8 @@
                   (send dc draw-bitmap playerSprite leftOffset topOffset)
                   (map (λ (tuple) (send dc draw-bitmap gemSprite (car tuple) (car (cdr tuple)))) gem-positions)
                   (map (λ (tuple) (send dc draw-bitmap enemySprite (car tuple) (car (cdr tuple)))) enemy-positions)
+                  (send dc set-text-foreground "blue")
+                  (send dc draw-line 0 15 window-width 15)
                   (send dc draw-text (format "Score: ~a" score) 0 0)
                   (send dc draw-text (format "Lives: ~a" lives) 100 0)
 ))

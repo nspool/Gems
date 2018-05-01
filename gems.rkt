@@ -11,7 +11,6 @@
 (define event-timer
   (new timer% [notify-callback
                (λ ()
-                 (set! score (add1 score))
                  (send frame refresh)
                  )] [interval 100]))
                                             

@@ -2,17 +2,22 @@
 
 (require racket/gui/base)
 
-; Display the main window with standard GUI elements for management
-
-(define window-width 640)
-
-(define frame (new frame% (label "Racket Gems") (width window-width) (height 480)))
+; Timer for display events such as changing the location of the critters
 
 (define event-timer
   (new timer% [notify-callback
                (λ ()
-                 (send frame refresh)
-                 )] [interval 100]))
+                 (do-next-frame)
+                 )] [interval 1000]))
+
+; Display the main window with standard GUI elements for management
+
+(define window-width 640)
+
+(define frame (new (class frame% (super-new)
+        (define/augment (on-close)
+          (send event-timer stop)
+          (displayln "Exiting..."))) (label "Racket Gems") (width window-width) (height 480)))
                                             
 ; (define frameMsg (new message% (parent frame) (label "No events so far..")))
 ; (define onclick (λ (button event) (send frameMsg set-label "New label!")))
@@ -26,6 +31,7 @@
 
 (define score 0)
 (define lives 9)
+(define frameCount #t)
 
 ; Put the gems down around the board
 
@@ -40,6 +46,14 @@
                      (and (> (car playerp) (car gemp)) (> (car (cdr playerp)) (car (cdr gemp)))
                           (< (car playerp) (+ (car gemp) 30)) (< (car (cdr playerp)) (+ (car (cdr gemp)) 30)))))
 
+(define do-next-frame (λ ()
+                        (set! frameCount (not frameCount))
+                        (if (false? frameCount)
+                            (set! enemy-positions (list '(200 200) '(250 250)))
+                            (set! enemy-positions (list '(100 100) '(150 150))))
+                        (displayln frameCount)
+                        (send frame refresh)))
+  
 (define do-update (λ ()
                     ;; TODO: only do expensive collision detection logic if on the bound
                     (define gem-count (length gem-positions))
@@ -69,9 +83,9 @@
     (define/override (on-char event)
       (case (send event get-key-code)
         ((or #\Q #\q escape)(exit))
-         ((up)
-          (set! topOffset (- topOffset 10))
-          (do-update))
+        ((up)
+         (set! topOffset (- topOffset 10))
+         (do-update))
         ((down)
          (set! topOffset (+ topOffset 10))
          (do-update))
@@ -95,7 +109,7 @@
                   (send dc draw-line 0 15 window-width 15)
                   (send dc draw-text (format "Score: ~a" score) 0 0)
                   (send dc draw-text (format "Lives: ~a" lives) 100 0)
-))
+                  ))
 
 (new my-canvas% (parent frame) (paint-callback onpaint))
 
